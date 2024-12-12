@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { cookies } from 'next/headers'
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION!,
@@ -12,9 +12,11 @@ const s3Client = new S3Client({
 });
 
 export async function POST(request: Request) {
-  const session = await getServerSession();
+  // 检查认证状态
+  const cookieStore = cookies()
+  const isAuthenticated = cookieStore.get('auth')
   
-  if (!session) {
+  if (!isAuthenticated) {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
   }
 
@@ -46,4 +48,4 @@ export async function POST(request: Request) {
     console.error("上传错误:", error);
     return NextResponse.json({ error: "上传失败" }, { status: 500 });
   }
-} 
+}
