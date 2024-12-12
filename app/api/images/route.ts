@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from 'next/headers'
+import { cookies } from 'next/headers';
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
@@ -13,8 +13,8 @@ const s3Client = new S3Client({
 
 export async function GET() {
   // 检查认证状态
-  const cookieStore = cookies()
-  const isAuthenticated = cookieStore.get('auth')
+  const cookieStore = cookies();
+  const isAuthenticated = cookieStore.get('auth');
   
   if (!isAuthenticated) {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
