@@ -1,6 +1,6 @@
-import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { cookies } from 'next/headers'
+import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION!,
@@ -12,9 +12,11 @@ const s3Client = new S3Client({
 });
 
 export async function GET() {
-  const session = await getServerSession();
+  // 检查认证状态
+  const cookieStore = cookies()
+  const isAuthenticated = cookieStore.get('auth')
   
-  if (!session) {
+  if (!isAuthenticated) {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
   }
 
@@ -26,19 +28,14 @@ export async function GET() {
     const response = await s3Client.send(command);
     
     const images = response.Contents?.map(object => ({
+      key: object.Key,
       url: `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${object.Key}`,
-      name: object.Key,
-      size: object.Size,
       lastModified: object.LastModified,
-      dimensions: {
-        width: 0,  // 这些信息需要从图片元数据中获取
-        height: 0
-      }
     })) || [];
 
-    return NextResponse.json(images);
+    return NextResponse.json({ images });
   } catch (error) {
     console.error("获取图片列表错误:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
-} 
+}
