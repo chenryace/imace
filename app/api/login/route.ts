@@ -6,13 +6,12 @@ export async function POST(req: Request) {
   console.log('Environment check:', {
     NODE_ENV: process.env.NODE_ENV,
     ACCESS_PASSWORD_EXISTS: !!process.env.ACCESS_PASSWORD,
-    ACCESS_PASSWORD: process.env.ACCESS_PASSWORD // 仅在开发环境打印
   })
   
   try {
     const data = await req.json()
     const receivedPassword = data.password
-    const expectedPassword = process.env.ACCESS_PASSWORD || '123321' // 默认密码，建议通过环境变量设置
+    const expectedPassword = process.env.ACCESS_PASSWORD || '123321'
     
     console.log('Password verification:', {
       receivedLength: receivedPassword?.length,
@@ -23,9 +22,14 @@ export async function POST(req: Request) {
     if (receivedPassword === expectedPassword) {
       console.log('Password correct, setting cookie')
       
-      // 设置 cookie
-      const cookieStore = cookies()
-      cookieStore.set('auth', 'true', {
+      // 创建响应对象
+      const response = NextResponse.json({ 
+        success: true,
+        message: '登录成功'
+      })
+      
+      // 在响应对象上设置 cookie
+      response.cookies.set('auth', 'true', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -34,14 +38,7 @@ export async function POST(req: Request) {
       })
       
       console.log('Cookie set successfully')
-      
-      return NextResponse.json({ 
-        success: true,
-        debug: process.env.NODE_ENV === 'development' ? {
-          cookieSet: true,
-          auth: cookieStore.get('auth')
-        } : undefined
-      })
+      return response
     }
     
     console.log('Password incorrect')
