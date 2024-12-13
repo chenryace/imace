@@ -28,7 +28,8 @@ export default function LoginPage() {
         body: JSON.stringify({ password }),
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include' // 确保包含 cookies
       })
 
       console.log('Response status:', res.status)
@@ -37,17 +38,11 @@ export default function LoginPage() {
 
       if (res.ok && data?.success) {
         console.log('Login successful, attempting navigation')
-        try {
-          // 先刷新以确保 cookie 生效
-          router.refresh()
-          // 等待一小段时间确保刷新完成
-          await new Promise(resolve => setTimeout(resolve, 100))
-          // 然后跳转
-          await router.push('/')
-        } catch (routeErr) {
-          console.error('Navigation error:', routeErr)
-          setError('登录成功但跳转失败，请手动刷新页面或点击返回首页')
-        }
+        
+        // 使用 window.location 进行硬重定向
+        window.location.href = '/'
+        return
+        
       } else {
         console.log('Login failed:', data)
         setError(data?.message || '密码错误')
@@ -67,14 +62,6 @@ export default function LoginPage() {
         {error && (
           <div className="mb-4 text-center">
             <p className="text-red-500">{error}</p>
-            {error.includes('手动刷新') && (
-              <button
-                onClick={() => router.push('/')}
-                className="mt-2 text-blue-400 hover:text-blue-300"
-              >
-                返回首页
-              </button>
-            )}
           </div>
         )}
         <form onSubmit={handleLogin} className="space-y-4">
@@ -86,6 +73,7 @@ export default function LoginPage() {
             required
             className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
             disabled={isLoading}
+            autoComplete="current-password"
           />
           <button 
             type="submit" 
