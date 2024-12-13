@@ -12,7 +12,7 @@ function LoginPage() {
     e.preventDefault()
     
     try {
-      // 修改 API 路径从 /api/auth 到 /api/login
+      console.log('Attempting to login...')
       const res = await fetch('/api/login', {
         method: 'POST',
         body: JSON.stringify({ password }),
@@ -21,13 +21,19 @@ function LoginPage() {
         }
       })
 
-      if (res.ok) {
+      console.log('Response status:', res.status)
+      const data = await res.json()
+      console.log('Response data:', data)
+
+      if (res.ok && data.success) {
         router.push('/')
         router.refresh()
       } else {
-        setError('密码错误')
+        setError(data.message || '密码错误')
+        console.error('Login failed:', data)
       }
-    } catch {
+    } catch (err) {
+      console.error('Login error:', err)
       setError('登录失败')
     }
   }
@@ -57,4 +63,4 @@ function LoginPage() {
   )
 }
 
-export default LoginPage
+export default LoginPage 
