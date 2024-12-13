@@ -3,9 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-export type LoginPageProps = {}
-
-const LoginPage: React.FC<LoginPageProps> = () => {
+export default function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -69,5 +67,3 @@ const LoginPage: React.FC<LoginPageProps> = () => {
     </div>
   )
 }
-
-export default LoginPage
