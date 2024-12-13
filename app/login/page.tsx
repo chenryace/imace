@@ -62,7 +62,6 @@ function LoginPage() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="请输入密码"
-            autocomplete="off"
             autoComplete="off"
             className="w-full p-2 mb-4 rounded bg-gray-700 text-white"
           />
