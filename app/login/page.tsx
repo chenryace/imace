@@ -29,7 +29,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        credentials: 'include' // 确保包含 cookies
+        credentials: 'include'
       })
 
       console.log('Response status:', res.status)
@@ -37,12 +37,9 @@ export default function LoginPage() {
       console.log('Response data:', data)
 
       if (res.ok && data?.success) {
-        console.log('Login successful, attempting navigation')
-        
-        // 使用 window.location 进行硬重定向
-        window.location.href = '/'
+        console.log('Login successful, redirecting to home')
+        window.location.href = '/home'
         return
-        
       } else {
         console.log('Login failed:', data)
         setError(data?.message || '密码错误')
