@@ -2,30 +2,30 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
 export async function POST(req: Request) {
-  console.log('API route hit: /api/login')
+  console.log('Login API called')
   
   try {
     const data = await req.json()
-    console.log('Request data:', data)
-    
-    if (!process.env.ACCESS_PASSWORD) {
-      console.error('ACCESS_PASSWORD not set')
-      return NextResponse.json(
-        { success: false, message: '服务器配置错误' },
-        { status: 500 }
-      )
-    }
+    console.log('Received password:', data.password)
+    console.log('Expected password:', process.env.ACCESS_PASSWORD)
+    console.log('Password match:', data.password === process.env.ACCESS_PASSWORD)
     
     if (data.password === process.env.ACCESS_PASSWORD) {
-      console.log('Password matched')
+      console.log('Setting auth cookie')
       cookies().set('auth', 'true', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
+        path: '/',
         maxAge: 60 * 60 * 24
       })
       
-      return NextResponse.json({ success: true })
+      return NextResponse.json({ 
+        success: true,
+        debug: process.env.NODE_ENV === 'development' ? {
+          cookieSet: true
+        } : undefined
+      })
     }
     
     console.log('Password mismatch')
@@ -40,4 +40,4 @@ export async function POST(req: Request) {
       { status: 500 }
     )
   }
-}
+} 
