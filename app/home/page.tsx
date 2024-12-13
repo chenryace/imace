@@ -1,11 +1,72 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function HomePage() {
   const [isUploading, setIsUploading] = useState(false)
+  const [dragActive, setDragActive] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+
+    const files = Array.from(e.dataTransfer.files)
+    if (files.length > 0) {
+      await handleUpload(files)
+    }
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      await handleUpload(files)
+    }
+  }
+
+  const handleUpload = async (files: File[]) => {
+    setIsUploading(true)
+    
+    try {
+      const formData = new FormData()
+      files.forEach(file => {
+        formData.append('files', file)
+      })
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!res.ok) {
+        throw new Error('上传失败')
+      }
+
+      const data = await res.json()
+      console.log('Upload success:', data)
+      
+      // 刷新页面以显示新上传的图片
+      router.refresh()
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('上传失败，请重试')
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -26,10 +87,29 @@ export default function HomePage() {
         <main>
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <h2 className="text-xl mb-4">上传图片</h2>
-            {/* 上传功能将在后续实现 */}
-            <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                dragActive
+                  ? 'border-blue-500 bg-blue-500/10'
+                  : 'border-gray-600 hover:border-gray-500'
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              style={{ cursor: 'pointer' }}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                multiple
+                accept="image/*"
+                className="hidden"
+              />
               <p className="text-gray-400">
-                ��拽图片到这里或点击上传
+                {isUploading ? '上传中...' : '点击或拖拽图片到这里上传'}
               </p>
             </div>
           </div>
@@ -37,4 +117,4 @@ export default function HomePage() {
       </div>
     </div>
   )
-} 
+}
