@@ -1,43 +1,37 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default function LoginPage() {
-  const router = useRouter()
+function LoginPage() {
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setIsLoading(true)
+    setLoading(true)
     setError('')
 
     try {
-      const formData = new FormData(e.currentTarget)
-      const password = formData.get('password')
-
-      const response = await fetch('/api/auth', {
+      const res = await fetch('/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
       })
 
-      const data = await response.json()
-      
-      if (response.ok && data.success) {
-        router.push(data.redirect)
+      if (res.ok) {
+        router.push('/') // 登录成功后跳转到首页
+        router.refresh() // 刷新页面状态
       } else {
-        setError(data.error || '登录失败')
-        console.error('Login failed:', data)
+        const data = await res.json()
+        setError(data.message || '登录失败')
       }
     } catch (err) {
-      console.error('Login error:', err)
-      setError('登录过程出错，请重试')
+      setError('登录过程出错')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
@@ -45,25 +39,27 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
         <h1 className="text-2xl text-white mb-6 text-center">图床登录</h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
         <form onSubmit={handleSubmit}>
           <input
             type="password"
-            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="请输入密码"
-            required
-            disabled={isLoading}
             className="w-full p-2 mb-4 rounded bg-gray-700 text-white"
+            disabled={loading}
           />
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={loading}
             className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {isLoading ? '登录中...' : '登录'}
+            {loading ? '登录中...' : '登录'}
           </button>
         </form>
       </div>
     </div>
   )
 }
+
+export default LoginPage
