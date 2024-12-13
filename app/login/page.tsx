@@ -3,17 +3,24 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-function LoginPage() {
+export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  async function login(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    console.log('Form submitted')
+    
+    if (!password) {
+      setError('请输入密码')
+      return
+    }
+
+    setError('')
+    setIsLoading(true)
     
     try {
-      console.log('Sending request with password:', password.length + ' characters')
       const res = await fetch('/api/login', {
         method: 'POST',
         body: JSON.stringify({ password }),
@@ -22,26 +29,24 @@ function LoginPage() {
         }
       })
 
-      console.log('Response received:', {
-        status: res.status,
-        ok: res.ok,
-        statusText: res.statusText
-      })
-
       const data = await res.json()
-      console.log('Response data:', data)
 
       if (res.ok && data?.success) {
-        console.log('Login successful, redirecting...')
-        router.push('/')
-        router.refresh()
+        try {
+          await router.push('/')
+          router.refresh()
+        } catch (routeErr) {
+          console.error('Navigation error:', routeErr)
+          setError('登录成功但跳转失败，请刷新页面')
+        }
       } else {
-        console.log('Login failed:', data)
         setError(data?.message || '密码错误')
       }
     } catch (err) {
       console.error('Login error:', err)
-      setError('登录失败')
+      setError('登录失败，请检查网络连接')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -50,31 +55,29 @@ function LoginPage() {
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
         <h1 className="text-2xl text-white mb-6 text-center">图床登录</h1>
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        <form 
-          onSubmit={(e) => {
-            console.log('Form submit triggered')
-            login(e)
-          }} 
-          noValidate
-        >
+        <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="请输入密码"
-            autoComplete="off"
-            className="w-full p-2 mb-4 rounded bg-gray-700 text-white"
+            required
+            className="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            disabled={isLoading}
           />
           <button 
             type="submit" 
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+            className={`w-full p-2 rounded text-white transition-colors ${
+              isLoading 
+                ? 'bg-blue-400 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+            disabled={isLoading}
           >
-            登录
+            {isLoading ? '登录中...' : '登录'}
           </button>
         </form>
       </div>
     </div>
   )
 }
-
-export default LoginPage 
