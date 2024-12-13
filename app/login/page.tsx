@@ -11,6 +11,7 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+    console.log('Login attempt started')
     
     if (!password) {
       setError('请输入密码')
@@ -21,6 +22,7 @@ export default function LoginPage() {
     setIsLoading(true)
     
     try {
+      console.log('Sending login request...')
       const res = await fetch('/api/login', {
         method: 'POST',
         body: JSON.stringify({ password }),
@@ -29,17 +31,25 @@ export default function LoginPage() {
         }
       })
 
+      console.log('Response status:', res.status)
       const data = await res.json()
+      console.log('Response data:', data)
 
       if (res.ok && data?.success) {
+        console.log('Login successful, attempting navigation')
         try {
-          await router.push('/')
+          // 先刷新以确保 cookie 生效
           router.refresh()
+          // 等待一小段时间确保刷新完成
+          await new Promise(resolve => setTimeout(resolve, 100))
+          // 然后跳转
+          await router.push('/')
         } catch (routeErr) {
           console.error('Navigation error:', routeErr)
-          setError('登录成功但跳转失败，请刷新页面')
+          setError('登录成功但跳转失败，请手动刷新页面或点击返回首页')
         }
       } else {
+        console.log('Login failed:', data)
         setError(data?.message || '密码错误')
       }
     } catch (err) {
@@ -54,7 +64,19 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
         <h1 className="text-2xl text-white mb-6 text-center">图床登录</h1>
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+        {error && (
+          <div className="mb-4 text-center">
+            <p className="text-red-500">{error}</p>
+            {error.includes('手动刷新') && (
+              <button
+                onClick={() => router.push('/')}
+                className="mt-2 text-blue-400 hover:text-blue-300"
+              >
+                返回首页
+              </button>
+            )}
+          </div>
+        )}
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="password"
