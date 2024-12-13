@@ -1,7 +1,4 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export default function RootLayout({
   children,
@@ -13,8 +10,13 @@ export default function RootLayout({
       <head>
         <title>图床应用</title>
         <meta name="description" content="基于Next.js和对象存储的现代图床应用" />
+        {/* 直接从 CDN 加载字体 */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className={inter.className}>
+      <body className="font-sans">
         {children}
       </body>
     </html>
