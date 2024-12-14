@@ -83,10 +83,9 @@ export default function LoginPage() {
                 required
                 className="w-full p-3 rounded bg-gray-900 text-white border border-gray-700 
                          focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent
-                         placeholder-gray-500 transition-all"
+                         placeholder-gray-500 transition-all cursor-text"
                 disabled={isLoading}
                 autoComplete="current-password"
-                autoFocus
               />
             </div>
             <button 
