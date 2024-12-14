@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { cookies } from 'next/headers';
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import { cookies } from 'next/headers'
 
-const s3Client = new S3Client({
+const s3 = new S3Client({
   region: process.env.S3_REGION!,
   credentials: {
     accessKeyId: process.env.S3_ACCESS_KEY!,
@@ -12,12 +12,14 @@ const s3Client = new S3Client({
 });
 
 export async function GET() {
-  // 检查认证状态
-  const cookieStore = cookies();
-  const isAuthenticated = cookieStore.get('auth');
-  
-  if (!isAuthenticated) {
-    return NextResponse.json({ error: "未授权" }, { status: 401 });
+  // 验证登录状态
+  const cookieStore = cookies()
+  const auth = cookieStore.get('auth')
+  if (!auth) {
+    return NextResponse.json(
+      { success: false, message: '未登录' },
+      { status: 401 }
+    )
   }
 
   try {
@@ -25,17 +27,29 @@ export async function GET() {
       Bucket: process.env.S3_BUCKET_NAME,
     });
 
-    const response = await s3Client.send(command);
+    const response = await s3.send(command);
     
-    const images = response.Contents?.map(object => ({
-      key: object.Key,
-      url: `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${object.Key}`,
-      lastModified: object.LastModified,
-    })) || [];
+    const images = response.Contents?.map(item => {
+      const url = `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${item.Key}`
+      return {
+        originalName: item.Key?.split('-').slice(2).join('-') || item.Key || '',
+        fileName: item.Key || '',
+        url,
+        markdown: `![${item.Key}](${url})`,
+        bbcode: `[img]${url}[/img]`,
+        html: `<img src="${url}" alt="${item.Key}" />`,
+        size: item.Size || 0,
+        type: 'image/*',
+        uploadTime: item.LastModified?.toISOString() || new Date().toISOString()
+      }
+    }) || [];
 
-    return NextResponse.json({ images });
+    return NextResponse.json(images);
   } catch (error) {
-    console.error("获取图片列表错误:", error);
-    return NextResponse.json({ error: "获取失败" }, { status: 500 });
+    console.error("Failed to list images:", error);
+    return NextResponse.json(
+      { error: "获取图片列表失败" },
+      { status: 500 }
+    );
   }
 }
