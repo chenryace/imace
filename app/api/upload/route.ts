@@ -13,13 +13,11 @@ const s3Client = new S3Client({
 
 // 生成公共访问 URL
 function getPublicUrl(fileName: string) {
-  // 使用配置的公共访问域名
-  const publicDomain = process.env.PUBLIC_DOMAIN || process.env.S3_ENDPOINT
-  // 确保不重复添加 bucket 名称（如果域名已经包含了）
-  const bucketPath = publicDomain?.includes(process.env.S3_BUCKET_NAME!)
-    ? ''
-    : `/${process.env.S3_BUCKET_NAME}`
-  return `${publicDomain}${bucketPath}/${fileName}`
+  // 使用配置的公共访问域名，确保没有结尾的斜杠
+  const publicDomain = (process.env.PUBLIC_DOMAIN || '').replace(/\/$/, '')
+  // 确保文件名开头没有斜杠
+  const cleanFileName = fileName.replace(/^\//, '')
+  return `${publicDomain}/${cleanFileName}`
 }
 
 export async function POST(req: Request) {
