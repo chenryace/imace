@@ -12,7 +12,6 @@ const s3Client = new S3Client({
 })
 
 export async function POST(req: Request) {
-  // 验证登录状态
   const cookieStore = cookies()
   const auth = cookieStore.get('auth')
   if (!auth) {
@@ -57,13 +56,20 @@ export async function POST(req: Request) {
         })
       )
 
+      // 生成访问 URL
+      const url = `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${fileName}`
+      
       // 添加到结果列表
       uploadedFiles.push({
         originalName: file.name,
         fileName,
-        url: `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${fileName}`,
+        url,
+        markdown: `![${file.name}](${url})`,
+        bbcode: `[img]${url}[/img]`,
+        html: `<img src="${url}" alt="${file.name}" />`,
         size: file.size,
-        type: file.type
+        type: file.type,
+        uploadTime: new Date().toISOString()
       })
     }
 
