@@ -11,6 +11,17 @@ const s3Client = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
 })
 
+// 生成公共访问 URL
+function getPublicUrl(fileName: string) {
+  // 使用配置的公共访问域名
+  const publicDomain = process.env.PUBLIC_DOMAIN || process.env.S3_ENDPOINT
+  // 确保不重复添加 bucket 名称（如果域名已经包含了）
+  const bucketPath = publicDomain?.includes(process.env.S3_BUCKET_NAME!)
+    ? ''
+    : `/${process.env.S3_BUCKET_NAME}`
+  return `${publicDomain}${bucketPath}/${fileName}`
+}
+
 export async function POST(req: Request) {
   const cookieStore = cookies()
   const auth = cookieStore.get('auth')
@@ -45,7 +56,7 @@ export async function POST(req: Request) {
       const ext = file.name.split('.').pop()
       const fileName = `${timestamp}-${randomStr}.${ext}`
 
-      // 上传到 S3
+      // 上传到 R2
       const buffer = Buffer.from(await file.arrayBuffer())
       await s3Client.send(
         new PutObjectCommand({
@@ -53,11 +64,14 @@ export async function POST(req: Request) {
           Key: fileName,
           Body: buffer,
           ContentType: file.type,
+          // 设置缓存控制和公共访问
+          CacheControl: 'public, max-age=31536000',
+          ACL: 'public-read',
         })
       )
 
-      // 生成访问 URL
-      const url = `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${fileName}`
+      // 生成公共访问 URL
+      const url = getPublicUrl(fileName)
       
       // 添加到结果列表
       uploadedFiles.push({
