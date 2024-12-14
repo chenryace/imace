@@ -3,15 +3,19 @@ import { cookies } from 'next/headers'
 
 export async function POST(req: Request) {
   console.log('Login API called')
-  console.log('Environment check:', {
-    NODE_ENV: process.env.NODE_ENV,
-    ACCESS_PASSWORD_EXISTS: !!process.env.ACCESS_PASSWORD,
-  })
   
   try {
     const data = await req.json()
     const receivedPassword = data.password
-    const expectedPassword = process.env.ACCESS_PASSWORD || '123321'
+    const expectedPassword = process.env.ACCESS_PASSWORD
+    
+    if (!expectedPassword) {
+      console.error('ACCESS_PASSWORD not configured')
+      return NextResponse.json(
+        { success: false, message: '服务器配置错误' },
+        { status: 500 }
+      )
+    }
     
     console.log('Password verification:', {
       receivedLength: receivedPassword?.length,
