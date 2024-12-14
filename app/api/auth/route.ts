@@ -64,7 +64,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: false,
       error: '服务器错误',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' 
+        ? error instanceof Error ? error.message : '未知错误'
+        : undefined
     }, { status: 500 })
   }
-} 
+}
