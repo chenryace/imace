@@ -11,6 +11,17 @@ const s3 = new S3Client({
   endpoint: process.env.S3_ENDPOINT,
 });
 
+// 生成公共访问 URL
+function getPublicUrl(fileName: string) {
+  // 使用配置的公共访问域名
+  const publicDomain = process.env.PUBLIC_DOMAIN || process.env.S3_ENDPOINT
+  // 确保不重复添加 bucket 名称（如果域名已经包含了）
+  const bucketPath = publicDomain?.includes(process.env.S3_BUCKET_NAME!)
+    ? ''
+    : `/${process.env.S3_BUCKET_NAME}`
+  return `${publicDomain}${bucketPath}/${fileName}`
+}
+
 export async function GET() {
   // 验证登录状态
   const cookieStore = cookies()
@@ -30,7 +41,7 @@ export async function GET() {
     const response = await s3.send(command);
     
     const images = response.Contents?.map(item => {
-      const url = `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET_NAME}/${item.Key}`
+      const url = getPublicUrl(item.Key!)
       return {
         originalName: item.Key?.split('-').slice(2).join('-') || item.Key || '',
         fileName: item.Key || '',
