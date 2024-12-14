@@ -13,13 +13,18 @@ const s3 = new S3Client({
   forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true'
 });
 
-// 通用的 URL 生成函数，支持自定义域名或默认 S3 端点
+// 通用的 URL 生成函数，支持 R2 子域名和 CDN 两种模式
 function getPublicUrl(fileName: string) {
-  if (process.env.PUBLIC_DOMAIN) {
-    // 如果配置了自定义域名，直接使用
+  // 使用 R2 子域名模式
+  if (process.env.USE_R2_SUBDOMAIN === 'true' && process.env.R2_CUSTOM_DOMAIN) {
+    return `${process.env.R2_CUSTOM_DOMAIN.replace(/\/$/, '')}/${fileName}`
+  }
+  // 使用 CDN/Workers 模式
+  else if (process.env.PUBLIC_DOMAIN) {
     return `${process.env.PUBLIC_DOMAIN.replace(/\/$/, '')}/${fileName}`
-  } else {
-    // 否则使用标准的 S3 URL 格式
+  }
+  // 降级到标准 S3 URL
+  else {
     const endpoint = process.env.S3_ENDPOINT?.replace(/\/$/, '')
     const bucket = process.env.S3_BUCKET_NAME
     return `${endpoint}/${bucket}/${fileName}`
@@ -67,4 +72,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+} 
