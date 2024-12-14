@@ -2,10 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-
-// 背景图片URL，可以在这里修改
-const BG_IMAGE = '/default-bg.jpg'
 
 export default function LoginPage() {
   const [password, setPassword] = useState('')
@@ -52,53 +48,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 relative">
-      {/* 背景图片 */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src={BG_IMAGE}
-          alt="Background"
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
-      
-      {/* 外层半透明框 */}
-      <div className="relative z-10 bg-white/70 backdrop-blur-sm p-8 rounded-xl shadow-2xl">
-        {/* 登录模块 */}
-        <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-96">
-          <h1 className="text-3xl font-bold text-yellow-500 mb-8 text-center">图床登录</h1>
-          {error && (
-            <div className="mb-6 text-center">
-              <p className="text-red-400">{error}</p>
-            </div>
-          )}
-          <form onSubmit={handleLogin} className="space-y-6">
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="请输入密码"
-              required
-              className="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 
-                       focus:ring-2 focus:ring-yellow-500 focus:border-transparent
-                       placeholder-gray-400"
-              disabled={isLoading}
-            />
-            <button 
-              type="submit" 
-              className={`w-full p-3 rounded font-medium transition-colors
-                ${isLoading 
-                  ? 'bg-yellow-600 cursor-not-allowed' 
-                  : 'bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600'
-                }`}
-              disabled={isLoading}
-            >
-              {isLoading ? '登录中...' : '登录'}
-            </button>
-          </form>
+    <div className="min-h-screen flex items-center justify-center bg-[#1e1e2d]">
+      <div className="w-[380px] p-8 mx-4 bg-[#1e1e2d]/40 backdrop-blur rounded-xl border border-white/10">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-medium text-white/90">图床登录</h1>
+          <p className="mt-2 text-white/60 text-sm">请输入密码进行登录</p>
         </div>
+        
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="请输入密码"
+            required
+            className="w-full p-3 bg-white/10 border border-white/10 rounded-lg
+                     text-white placeholder-white/40
+                     focus:outline-none focus:border-white/20 focus:bg-white/20
+                     transition-colors"
+            disabled={isLoading}
+          />
+          <button 
+            type="submit" 
+            className={`w-full p-3 rounded-lg font-medium transition-colors
+              ${isLoading 
+                ? 'bg-blue-600/50 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700'
+              }`}
+            disabled={isLoading}
+          >
+            {isLoading ? '登录中...' : '登录'}
+          </button>
+        </form>
       </div>
     </div>
   )
