@@ -48,15 +48,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-[#1a1b1f] text-gray-100 flex items-center justify-center">
+    <div className="w-full h-screen flex items-center justify-center bg-[#1a1b1f] overflow-hidden">
       {/* 背景图案 */}
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:50px_50px]" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1a1b1f]/50" />
       
       {/* 主容器 */}
-      <div className="relative w-full max-w-md mx-auto p-6">
+      <div className="w-full max-w-md mx-auto px-6 flex flex-col items-center justify-center">
         {/* 登录卡片 */}
-        <div className="backdrop-blur-2xl bg-white/[0.05] rounded-2xl p-8 shadow-2xl border border-white/[0.05]">
+        <div className="w-full backdrop-blur-2xl bg-white/[0.05] rounded-2xl p-8 shadow-2xl border border-white/[0.05]">
           {/* 标题区域 */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
