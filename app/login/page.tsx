@@ -69,17 +69,17 @@ export default function LoginPage() {
         background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
       }}>
         {/* 主容器 */}
-        <div className="w-full max-w-md mx-auto px-6">
+        <div className="w-full max-w-md mx-auto px-6 text-left">
           {/* 外层半透明卡片 */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl">
+          <div className="bg-white bg-opacity-10 rounded-3xl p-8 shadow-2xl backdrop-blur-lg">
             {/* 内层白色卡片 */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-inner border border-white/[0.1]">
+            <div className="bg-white bg-opacity-10 rounded-2xl p-8 shadow-inner border border-white border-opacity-10 backdrop-blur-lg">
               {/* 标题区域 */}
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-white">
                   图床服务
                 </h1>
-                <p className="text-white/80 mt-2 text-sm">
+                <p className="text-white text-opacity-80 mt-2 text-sm">
                   安全可靠的图片存储与分享服务
                 </p>
               </div>
@@ -87,7 +87,7 @@ export default function LoginPage() {
               {/* 登录表单 */}
               <form onSubmit={handleLogin} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-white/90 mb-1.5">
+                  <label className="block text-sm font-medium text-white text-opacity-90 mb-1.5">
                     密码
                   </label>
                   <input
@@ -97,9 +97,9 @@ export default function LoginPage() {
                     placeholder="请输入访问密码"
                     required
                     autoComplete="new-password"
-                    className="w-full px-4 h-11 bg-black/10 border border-white/[0.1] rounded-lg
-                             text-white placeholder-white/40
-                             focus:outline-none focus:ring-2 focus:ring-white/25 focus:border-transparent
+                    className="w-full px-4 h-11 bg-black bg-opacity-10 border border-white border-opacity-10 rounded-lg
+                             text-white placeholder-white placeholder-opacity-40
+                             focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-25 focus:border-transparent
                              transition-all duration-200"
                     disabled={isLoading}
                   />
@@ -107,7 +107,7 @@ export default function LoginPage() {
 
                 {/* 错误提示 */}
                 {error && (
-                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <div className="p-4 bg-red-500 bg-opacity-10 border border-red-500 border-opacity-20 rounded-lg">
                     <p className="text-red-200 text-sm text-center">{error}</p>
                   </div>
                 )}
@@ -118,8 +118,8 @@ export default function LoginPage() {
                   disabled={isLoading}
                   className={`w-full h-11 rounded-lg font-medium transition-all duration-200
                     ${isLoading
-                      ? 'bg-white/30 cursor-not-allowed'
-                      : 'bg-white hover:bg-white/90 active:bg-white/75 text-blue-600'
+                      ? 'bg-white bg-opacity-30 cursor-not-allowed'
+                      : 'bg-white hover:bg-opacity-90 active:bg-opacity-75 text-blue-600'
                     }
                     shadow-lg shadow-blue-500/20`}
                 >
@@ -138,11 +138,11 @@ export default function LoginPage() {
           </div>
 
           {/* 页脚信息 */}
-          <div className="mt-8 text-center text-sm text-white/80">
+          <div className="mt-8 text-center text-sm text-white text-opacity-80">
             <p>© 2024 图床服务. All rights reserved.</p>
           </div>
         </div>
       </div>
     </>
   )
-}
+} 
