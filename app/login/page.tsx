@@ -142,10 +142,10 @@ export default function LoginPage() {
         .error {
           background: rgba(239, 68, 68);
           border: 1px solid rgba(239, 68, 68, 0.9);
-          border-radius: 0.5rem;
+          border-radius: 0.3rem;
           padding: 0.3rem;
-          margin: 1rem;
-          max-width: 16rem;
+          margin: 0.3rem;
+          max-width: 10rem;
         }
         .error-text {
           color: rgb(255, 255, 255);
