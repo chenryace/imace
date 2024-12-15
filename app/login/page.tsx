@@ -140,7 +140,7 @@ export default function LoginPage() {
           border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'};
         }
         .error {
-          background: rgba(239, 68, 68, 0.8);
+          background: rgba(239, 68, 68);
           border: 1px solid rgba(239, 68, 68, 0.9);
           border-radius: 0.5rem;
           padding: 0.3rem;
