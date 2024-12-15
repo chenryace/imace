@@ -71,7 +71,7 @@ export default function LoginPage() {
           width: 100%;
           max-width: 24rem;
           background: ${isDarkMode ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 0.7)'};
-          backdrop-filter: blur(8px);
+          backdrop-filter: blur(18px);
           border-radius: 1rem;
           padding: 2rem;
           text-align: center;
@@ -111,7 +111,7 @@ export default function LoginPage() {
           height: 2.75rem;
           padding: 0 1rem;
           background: ${isDarkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)'};
-          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.5)'};
+          border: 2px solid ${isDarkMode ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
           margin: 0 auto 1rem;
