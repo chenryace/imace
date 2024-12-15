@@ -148,7 +148,7 @@ export default function LoginPage() {
           max-width: 14rem;
         }
         .error-text {
-          color: ${isDarkMode ? '#fff' : '#000'};
+          color: rgb(0, 0, 0);
           font-size: 1rem;
         }
         .button {
