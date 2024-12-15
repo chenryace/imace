@@ -126,8 +126,8 @@ export default function LoginPage() {
           max-width: 14rem;
           height: 2.75rem;
           padding: 0 1rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.6)'};
-          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)'};
+          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
           margin: 0 auto 1rem;
