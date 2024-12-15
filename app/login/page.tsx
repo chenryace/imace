@@ -144,8 +144,8 @@ export default function LoginPage() {
           border: 1px solid rgba(239, 68, 68, 0.9);
           border-radius: 0.5rem;
           padding: 0.3rem;
-          margin: 0 auto 1rem;
-          max-width: 14rem;
+          margin: 1rem;
+          max-width: 16rem;
         }
         .error-text {
           color: rgb(0, 0, 0);
