@@ -83,7 +83,7 @@ export default function LoginPage() {
         .card-backdrop {
           position: absolute;
           inset: 0;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)'};
           backdrop-filter: blur(8px);
         }
         .card {
@@ -126,14 +126,14 @@ export default function LoginPage() {
           max-width: 14rem;
           height: 2.75rem;
           padding: 0 1rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.2)'};
-          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.6)'};
+          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
           margin: 0 auto 1rem;
         }
         .input::placeholder {
-          color: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
+          color: ${isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)'};
         }
         .input:focus {
           outline: none;
