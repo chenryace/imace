@@ -50,19 +50,20 @@ export default function LoginPage() {
     <>
       <style jsx>{`
         .container {
-          min-height: 100vh;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           display: flex;
           align-items: center;
           justify-content: center;
           background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-          background-size: cover;
-          background-position: center;
-          padding: 1.5rem;
         }
         .card {
           width: 100%;
           max-width: 24rem;
-          background: rgba(255, 255, 255, 0.8);
+          background: rgba(255, 255, 255, 0.9);
           backdrop-filter: blur(8px);
           border-radius: 1rem;
           padding: 2rem;
@@ -92,7 +93,7 @@ export default function LoginPage() {
           max-width: 16rem;
           height: 2.75rem;
           padding: 0 1rem;
-          background: rgba(255, 255, 255, 0.9);
+          background: rgba(255, 255, 255, 0.7);
           border: 1px solid rgba(0, 0, 0, 0.1);
           border-radius: 0.5rem;
           color: #000;
