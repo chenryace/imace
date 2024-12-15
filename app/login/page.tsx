@@ -47,76 +47,68 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{
-      background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
-    }}>
-      <div className="w-full max-w-md mx-auto p-6">
-        <div className="relative backdrop-blur-lg rounded-2xl overflow-hidden">
-          {/* 半透明背景层 */}
-          <div className="absolute inset-0 bg-white opacity-20"></div>
-          
-          {/* 内容层 */}
-          <div className="relative p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white">
-                图床服务
-              </h1>
-              <p className="text-white opacity-80 mt-2 text-sm">
-                安全可靠的图片存储与分享服务
-              </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600">
+      <div className="w-full max-w-md p-6">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white">
+              图床服务
+            </h1>
+            <p className="text-white/80 mt-2 text-sm">
+              安全可靠的图片存储与分享服务
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-white/90 mb-2">
+                密码
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="请输入访问密码"
+                required
+                className="w-full h-11 px-4 bg-black/10 border border-white/20 rounded-lg
+                         text-white placeholder:text-white/50
+                         focus:outline-none focus:ring-2 focus:ring-white/25 focus:border-transparent
+                         transition duration-200"
+                disabled={isLoading}
+              />
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-white opacity-90 mb-2">
-                  密码
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="请输入访问密码"
-                  required
-                  className="w-full h-11 px-4 bg-black/10 border border-white/20 rounded-lg
-                           text-white placeholder:text-white/50
-                           focus:outline-none focus:ring-2 focus:ring-white/25 focus:border-transparent
-                           transition duration-200"
-                  disabled={isLoading}
-                />
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-200 text-sm text-center">{error}</p>
               </div>
+            )}
 
-              {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <p className="text-red-200 text-sm text-center">{error}</p>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full h-11 rounded-lg font-medium transition duration-200
-                  ${isLoading
-                    ? 'bg-white/30 cursor-not-allowed'
-                    : 'bg-white hover:bg-opacity-90 active:bg-opacity-75 text-blue-600'
-                  }
-                `}
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    登录中...
-                  </span>
-                ) : '登录'}
-              </button>
-            </form>
-          </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full h-11 rounded-lg font-medium transition duration-200
+                ${isLoading
+                  ? 'bg-white/30 cursor-not-allowed'
+                  : 'bg-white hover:bg-opacity-90 active:bg-opacity-75 text-blue-600'
+                }
+              `}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  登录中...
+                </span>
+              ) : '登录'}
+            </button>
+          </form>
         </div>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-white opacity-80">© 2024 图床服务. All rights reserved.</p>
+          <p className="text-sm text-white/80">© 2024 图床服务. All rights reserved.</p>
         </div>
       </div>
     </div>
