@@ -70,7 +70,7 @@ export default function LoginPage() {
         .card {
           width: 100%;
           max-width: 24rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 0.7)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 0.5)'};
           backdrop-filter: blur(18px);
           border-radius: 1rem;
           padding: 2rem;
@@ -110,8 +110,8 @@ export default function LoginPage() {
           max-width: 16rem;
           height: 2.75rem;
           padding: 0 1rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)'};
-          border: 2px solid ${isDarkMode ? 'rgba(255, 255, 255, 1)' : 'rgba(0, 0, 0, 1)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.4)'};
+          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.25)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
           margin: 0 auto 1rem;
@@ -121,7 +121,7 @@ export default function LoginPage() {
         }
         .input:focus {
           outline: none;
-          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
         }
         .error {
           background: rgba(239, 68, 68, 0.1);
@@ -152,7 +152,7 @@ export default function LoginPage() {
           opacity: 0.9;
         }
         .button:disabled {
-          background: ${isDarkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(255, 255, 255, 0.3)'};
+          background: ${isDarkMode ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.3)'};
           cursor: not-allowed;
         }
         .footer {
