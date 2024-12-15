@@ -67,14 +67,26 @@ export default function LoginPage() {
           background-size: cover;
           background-position: center;
         }
-        .card {
+        .card-wrapper {
+          position: relative;
           width: 100%;
           max-width: 24rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.4)'};
+          isolation: isolate;
+        }
+        .card-backdrop {
+          position: absolute;
+          inset: 0;
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.9)'};
           backdrop-filter: blur(8px);
           border-radius: 1rem;
+          z-index: -1;
+        }
+        .card {
+          width: 100%;
           padding: 2rem;
           text-align: center;
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.8)' : 'transparent'};
+          border-radius: 1rem;
         }
         .title {
           color: ${isDarkMode ? '#fff' : '#000'};
@@ -110,7 +122,7 @@ export default function LoginPage() {
           max-width: 16rem;
           height: 2.75rem;
           padding: 0 1rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.2)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.7)'};
           border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
@@ -121,7 +133,7 @@ export default function LoginPage() {
         }
         .input:focus {
           outline: none;
-          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.7)'};
+          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
         }
         .error {
           background: rgba(239, 68, 68, 0.1);
@@ -152,7 +164,7 @@ export default function LoginPage() {
           opacity: 0.9;
         }
         .button:disabled {
-          background: ${isDarkMode ? 'rgba(59, 130, 246, 0.4)' : 'rgba(255, 255, 255, 0.3)'};
+          background: ${isDarkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(255, 255, 255, 0.3)'};
           cursor: not-allowed;
         }
         .footer {
@@ -166,51 +178,54 @@ export default function LoginPage() {
 
       <div className="container">
         <div>
-          <div className="card">
-            <Image
-              src="/favicon.ico"
-              alt="Logo"
-              width={64}
-              height={64}
-              className="mx-auto mb-4"
-            />
-            <h1 className="title">图床服务</h1>
-            <p className="subtitle">安全可靠的图片存储与分享服务</p>
-
-            <button 
-              className="theme-switch"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              type="button"
-              aria-label="切换主题"
-            >
-              {isDarkMode ? '🌙' : '☀️'}
-            </button>
-
-            <form onSubmit={handleLogin}>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="请输入访问密码"
-                required
-                className="input"
-                disabled={isLoading}
+          <div className="card-wrapper">
+            <div className="card-backdrop"></div>
+            <div className="card">
+              <Image
+                src="/favicon.ico"
+                alt="Logo"
+                width={64}
+                height={64}
+                className="mx-auto mb-4"
               />
+              <h1 className="title">图床服务</h1>
+              <p className="subtitle">安全可靠的图片存储与分享服务</p>
 
-              {error && (
-                <div className="error">
-                  <p className="error-text">{error}</p>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="button"
+              <button 
+                className="theme-switch"
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                type="button"
+                aria-label="切换主题"
               >
-                {isLoading ? '登录中...' : '登录'}
+                {isDarkMode ? '🌙' : '☀️'}
               </button>
-            </form>
+
+              <form onSubmit={handleLogin}>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="请输入访问密码"
+                  required
+                  className="input"
+                  disabled={isLoading}
+                />
+
+                {error && (
+                  <div className="error">
+                    <p className="error-text">{error}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="button"
+                >
+                  {isLoading ? '登录中...' : '登录'}
+                </button>
+              </form>
+            </div>
           </div>
 
           <div className="footer">
