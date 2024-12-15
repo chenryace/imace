@@ -47,70 +47,137 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600">
-      <div className="w-full max-w-md p-6">
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white">
-              图床服务
-            </h1>
-            <p className="text-white/80 mt-2 text-sm">
-              安全可靠的图片存储与分享服务
-            </p>
-          </div>
+    <>
+      <style jsx>{`
+        .container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+          padding: 1.5rem;
+        }
+        .card {
+          width: 100%;
+          max-width: 28rem;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(8px);
+          border-radius: 1rem;
+          padding: 2rem;
+        }
+        .title {
+          text-align: center;
+          color: white;
+          font-size: 1.875rem;
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+        }
+        .subtitle {
+          text-align: center;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.875rem;
+          margin-bottom: 2rem;
+        }
+        .label {
+          display: block;
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 0.875rem;
+          margin-bottom: 0.5rem;
+        }
+        .input {
+          width: 100%;
+          height: 2.75rem;
+          padding: 0 1rem;
+          background: rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 0.5rem;
+          color: white;
+          margin-bottom: 1rem;
+        }
+        .input::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+        .input:focus {
+          outline: none;
+          border-color: rgba(255, 255, 255, 0.5);
+        }
+        .error {
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          border-radius: 0.5rem;
+          padding: 1rem;
+          margin-bottom: 1rem;
+        }
+        .error-text {
+          color: rgb(254, 202, 202);
+          font-size: 0.875rem;
+          text-align: center;
+        }
+        .button {
+          width: 100%;
+          height: 2.75rem;
+          border-radius: 0.5rem;
+          font-weight: 500;
+          background: white;
+          color: #2563EB;
+          border: none;
+          cursor: pointer;
+          transition: opacity 0.2s;
+        }
+        .button:hover {
+          opacity: 0.9;
+        }
+        .button:disabled {
+          background: rgba(255, 255, 255, 0.3);
+          cursor: not-allowed;
+        }
+        .footer {
+          text-align: center;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.875rem;
+          margin-top: 2rem;
+        }
+      `}</style>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-white/90 mb-2">
-                密码
-              </label>
+      <div className="container">
+        <div>
+          <div className="card">
+            <h1 className="title">图床服务</h1>
+            <p className="subtitle">安全可靠的图片存储与分享服务</p>
+
+            <form onSubmit={handleLogin}>
+              <label className="label">密码</label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="请输入访问密码"
                 required
-                className="w-full h-11 px-4 bg-black/10 border border-white/20 rounded-lg
-                         text-white placeholder:text-white/50
-                         focus:outline-none focus:ring-2 focus:ring-white/25 focus:border-transparent
-                         transition duration-200"
+                className="input"
                 disabled={isLoading}
               />
-            </div>
 
-            {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                <p className="text-red-200 text-sm text-center">{error}</p>
-              </div>
-            )}
+              {error && (
+                <div className="error">
+                  <p className="error-text">{error}</p>
+                </div>
+              )}
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full h-11 rounded-lg font-medium transition duration-200
-                ${isLoading
-                  ? 'bg-white/30 cursor-not-allowed'
-                  : 'bg-white hover:bg-opacity-90 active:bg-opacity-75 text-blue-600'
-                }
-              `}
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  登录中...
-                </span>
-              ) : '登录'}
-            </button>
-          </form>
-        </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="button"
+              >
+                {isLoading ? '登录中...' : '登录'}
+              </button>
+            </form>
+          </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-sm text-white/80">© 2024 图床服务. All rights reserved.</p>
+          <div className="footer">
+            © 2024 图床服务. All rights reserved.
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 } 
