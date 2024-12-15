@@ -69,7 +69,7 @@ export default function LoginPage() {
         }
         .card-wrapper {
           width: 100%;
-          max-width: 24rem;
+          max-width: 20rem;
           margin: 0 auto;
           padding: 1.5rem;
         }
@@ -83,7 +83,7 @@ export default function LoginPage() {
         .card-backdrop {
           position: absolute;
           inset: 0;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.55)'};
           backdrop-filter: blur(8px);
         }
         .card {
@@ -140,15 +140,15 @@ export default function LoginPage() {
           border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
         }
         .error {
-          background: rgba(239, 68, 68, 0.1);
-          border: 1px solid rgba(239, 68, 68, 0.2);
+          background: rgba(239, 68, 68, 0.8);
+          border: 1px solid rgba(239, 68, 68, 0.9);
           border-radius: 0.5rem;
-          padding: 1rem;
+          padding: 0.3rem;
           margin: 0 auto 1rem;
           max-width: 16rem;
         }
         .error-text {
-          color: rgb(239, 68, 68);
+          color: rgb(0, 0, 0);
           font-size: 0.875rem;
         }
         .button {
