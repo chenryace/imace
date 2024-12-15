@@ -70,8 +70,8 @@ export default function LoginPage() {
         .card {
           width: 100%;
           max-width: 24rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 0.5)'};
-          backdrop-filter: blur(18px);
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.5)'};
+          backdrop-filter: blur(3px);
           border-radius: 1rem;
           padding: 2rem;
           text-align: center;
@@ -110,7 +110,7 @@ export default function LoginPage() {
           max-width: 16rem;
           height: 2.75rem;
           padding: 0 1rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.4)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.3)'};
           border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.25)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
@@ -121,7 +121,7 @@ export default function LoginPage() {
         }
         .input:focus {
           outline: none;
-          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
+          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.7)'};
         }
         .error {
           background: rgba(239, 68, 68, 0.1);
