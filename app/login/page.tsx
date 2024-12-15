@@ -62,7 +62,7 @@ export default function LoginPage() {
         .card {
           width: 100%;
           max-width: 24rem;
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.8);
           backdrop-filter: blur(8px);
           border-radius: 1rem;
           padding: 2rem;
