@@ -69,7 +69,7 @@ export default function LoginPage() {
         }
         .card-wrapper {
           width: 100%;
-          max-width: 20rem;
+          max-width: 24rem;
           margin: 0 auto;
           padding: 1.5rem;
         }
@@ -83,7 +83,7 @@ export default function LoginPage() {
         .card-backdrop {
           position: absolute;
           inset: 0;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.55)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.9)'};
           backdrop-filter: blur(8px);
         }
         .card {
@@ -123,21 +123,21 @@ export default function LoginPage() {
         }
         .input {
           width: 100%;
-          max-width: 16rem;
+          max-width: 14rem;
           height: 2.75rem;
           padding: 0 1rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.7)'};
-          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.2)'};
+          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
           margin: 0 auto 1rem;
         }
         .input::placeholder {
-          color: ${isDarkMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'};
+          color: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
         }
         .input:focus {
           outline: none;
-          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'};
         }
         .error {
           background: rgba(239, 68, 68, 0.8);
@@ -145,11 +145,11 @@ export default function LoginPage() {
           border-radius: 0.5rem;
           padding: 0.3rem;
           margin: 0 auto 1rem;
-          max-width: 16rem;
+          max-width: 14rem;
         }
         .error-text {
-          color: rgb(0, 0, 0);
-          font-size: 0.875rem;
+          color: ${isDarkMode ? '#fff' : '#000'};
+          font-size: 1rem;
         }
         .button {
           width: 100%;
