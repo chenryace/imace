@@ -68,25 +68,29 @@ export default function LoginPage() {
           background-position: center;
         }
         .card-wrapper {
-          position: relative;
           width: 100%;
           max-width: 24rem;
-          isolation: isolate;
+          margin: 0 auto;
+          padding: 1.5rem;
+        }
+        .card-container {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          border-radius: 1rem;
+          overflow: hidden;
         }
         .card-backdrop {
           position: absolute;
           inset: 0;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.9)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)'};
           backdrop-filter: blur(8px);
-          border-radius: 1rem;
-          z-index: -1;
         }
         .card {
-          width: 100%;
+          position: relative;
+          z-index: 1;
           padding: 2rem;
           text-align: center;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.8)' : 'transparent'};
-          border-radius: 1rem;
         }
         .title {
           color: ${isDarkMode ? '#fff' : '#000'};
@@ -177,8 +181,8 @@ export default function LoginPage() {
       `}</style>
 
       <div className="container">
-        <div>
-          <div className="card-wrapper">
+        <div className="card-wrapper">
+          <div className="card-container">
             <div className="card-backdrop"></div>
             <div className="card">
               <Image
