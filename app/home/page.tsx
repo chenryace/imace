@@ -1,37 +1,19 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
-// 可自定义的标题
-const SITE_TITLE = '图床服务'
-
 interface PreviewFile extends File {
   preview: string;
-  url?: string;
-  markdown?: string;
 }
 
 export default function HomePage() {
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<PreviewFile[]>([])
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // 从 localStorage 读取主题设置
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('theme')
-      return saved === 'dark'
-    }
-    return false
-  })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-
-  // 监听主题变化并保存到 localStorage
-  useEffect(() => {
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light')
-  }, [isDarkMode])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -43,37 +25,35 @@ export default function HomePage() {
     }
   }
 
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
 
     const files = Array.from(e.dataTransfer.files)
-    if (files.length > 9) {
-      alert('一次最多上传9张图片')
-      return
-    }
-    await handleFiles(files)
+    handleFiles(files)
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    if (files.length > 9) {
-      alert('一次最多上传9张图片')
-      return
-    }
-    await handleFiles(files)
+    handleFiles(files)
   }
 
-  const handleFiles = async (files: File[]) => {
+  const handleFiles = (files: File[]) => {
     const imageFiles = files.filter(file => file.type.startsWith('image/'))
     const previewFiles = imageFiles.map(file => Object.assign(file, {
       preview: URL.createObjectURL(file)
     }))
-    setSelectedFiles(previewFiles)
-    
-    // 自动上传
-    await handleUpload(previewFiles)
+    setSelectedFiles(prev => [...prev, ...previewFiles])
+  }
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => {
+      const newFiles = [...prev]
+      URL.revokeObjectURL(newFiles[index].preview)
+      newFiles.splice(index, 1)
+      return newFiles
+    })
   }
 
   const handleUpload = async (files: PreviewFile[]) => {
@@ -87,16 +67,31 @@ export default function HomePage() {
         formData.append('files', file)
       })
 
+      console.log('Uploading files:', files.length)
       const res = await fetch('/api/upload', {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'same-origin'  // 添加凭据
       })
 
-      if (!res.ok) {
-        throw new Error('上传失败')
+      // 先获取响应文本
+      const responseText = await res.text()
+      console.log('Response text:', responseText)
+
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (e) {
+        console.error('Failed to parse response:', e)
+        throw new Error('服务器响应格式错误')
       }
 
-      const data = await res.json()
+      if (!res.ok) {
+        console.error('Upload failed:', data)
+        throw new Error(data.error || data.message || '上传失败')
+      }
+
+      console.log('Upload success:', data)
       
       // 更新预览文件的URL信息
       const updatedFiles = files.map((file, index) => ({
@@ -108,239 +103,119 @@ export default function HomePage() {
       setSelectedFiles(updatedFiles)
     } catch (error) {
       console.error('Upload error:', error)
-      alert('上传失败，请重试')
+      alert(error instanceof Error ? error.message : '上传失败，请重试')
     } finally {
       setIsUploading(false)
     }
   }
 
   return (
-    <>
-      <style jsx global>{`
-        body {
-          margin: 0;
-          padding: 0;
-          min-height: 100vh;
-        }
-      `}</style>
-      
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-          padding: 1rem;
-        }
-        .header {
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'};
-          padding: 1rem;
-          margin-bottom: 2rem;
-          border-radius: 0.5rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          backdrop-filter: blur(8px);
-        }
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-        .header-title {
-          font-size: 1.5rem;
-          font-weight: bold;
-          color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
-          margin: 0;
-        }
-        .header-buttons {
-          display: flex;
-          gap: 1rem;
-        }
-        .header-button {
-          padding: 0.5rem 1rem;
-          border-radius: 0.5rem;
-          border: none;
-          font-weight: bold;
-          cursor: pointer;
-          background: transparent;
-          color: ${isDarkMode ? '#fff' : '#000'};
-          transition: all 0.2s;
-        }
-        .header-button:hover {
-          background: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-        }
-        .active-button {
-          color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
-        }
-        .theme-switch {
-          width: 2.5rem;
-          height: 2.5rem;
-          border-radius: 9999px;
-          border: none;
-          cursor: pointer;
-          background: ${isDarkMode ? '#374151' : '#E5E7EB'};
-          color: inherit;
-          font-size: 1.25rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-left: 1rem;
-          transition: all 0.2s;
-        }
-        .theme-switch:hover {
-          background: ${isDarkMode ? '#4B5563' : '#D1D5DB'};
-        }
-        .main {
-          max-width: 48rem;
-          margin: 0 auto;
-        }
-        .upload-area {
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'};
-          border-radius: 1rem;
-          padding: 2rem;
-          text-align: center;
-          margin-bottom: 2rem;
-          backdrop-filter: blur(8px);
-        }
-        .drop-zone {
-          border: 2px dashed ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
-          border-radius: 0.5rem;
-          padding: 2rem;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .drop-zone.active {
-          border-color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
-          background: ${isDarkMode ? 'rgba(255, 215, 0, 0.1)' : 'rgba(59, 130, 246, 0.1)'};
-        }
-        .preview-area {
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'};
-          border-radius: 1rem;
-          padding: 2rem;
-          min-height: 24rem;
-          backdrop-filter: blur(8px);
-        }
-        .preview-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-        }
-        .preview-item {
-          aspect-ratio: 1;
-          position: relative;
-          border-radius: 0.5rem;
-          overflow: hidden;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)'};
-        }
-        .preview-info {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          padding: 0.5rem;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)'};
-          font-size: 0.75rem;
-          color: ${isDarkMode ? '#fff' : '#000'};
-        }
-        .preview-url {
-          word-break: break-all;
-          margin-bottom: 0.25rem;
-        }
-        .text {
-          color: ${isDarkMode ? '#fff' : '#000'};
-          margin: 0;
-        }
-      `}</style>
-
-      <div className="container">
-        <header className="header">
-          <div className="header-left">
-            <Image
-              src="/favicon.ico"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
-            <h1 className="header-title">{SITE_TITLE}</h1>
-          </div>
-          
-          <div className="header-buttons">
-            <button className="header-button active-button">
-              上传图片
-            </button>
-            <button 
-              className="header-button"
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+      <div className="max-w-4xl mx-auto">
+        <header className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-yellow-500">图床</h1>
+          <div className="space-x-4">
+            <button
               onClick={() => router.push('/manage')}
+              className="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded transition-colors"
             >
               图片管理
             </button>
             <button
-              className="header-button"
               onClick={() => {
                 fetch('/api/logout', { method: 'POST' })
                   .then(() => window.location.href = '/login')
               }}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors"
             >
               退出登录
-            </button>
-            <button 
-              className="theme-switch"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              aria-label="切换主题"
-            >
-              {isDarkMode ? '🌙' : '☀️'}
             </button>
           </div>
         </header>
 
-        <main className="main">
-          <div className="upload-area">
+        <main className="space-y-8">
+          <div className="bg-gray-800 p-8 rounded-lg shadow-lg">
+            <h2 className="text-xl mb-6 text-yellow-500">上传图片</h2>
+            
+            {/* 拖放区域 */}
             <div
-              className={`drop-zone ${dragActive ? 'active' : ''}`}
+              className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors
+                ${dragActive
+                  ? 'border-yellow-500 bg-yellow-500/10'
+                  : 'border-gray-600 hover:border-gray-500'
+                }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
+              style={{ cursor: 'pointer' }}
             >
-              <p className="text">
-                {isUploading ? '上传中...' : '点击或拖拽图片到这里上传'}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                multiple
+                accept="image/*"
+                className="hidden"
+              />
+              <p className="text-gray-400 mb-2">
+                {isUploading ? '上传中...' : '点击或拖拽图片到这里'}
               </p>
-              <p className="text" style={{ fontSize: '0.875rem', opacity: 0.7 }}>
-                支持 JPG、PNG、GIF 等图片格式，单次最多9张
+              <p className="text-gray-500 text-sm">
+                支持 JPG、PNG、GIF 等图片格式
               </p>
             </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              multiple
-              accept="image/*"
-              style={{ display: 'none' }}
-            />
-          </div>
 
-          <div className="preview-area">
-            <div className="preview-grid">
-              {selectedFiles.map((file, index) => (
-                <div key={index} className="preview-item">
-                  <Image
-                    src={file.preview}
-                    alt={file.name}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                  {file.url && (
-                    <div className="preview-info">
-                      <div className="preview-url">直链：{file.url}</div>
-                      <div className="preview-url">Markdown：{file.markdown}</div>
+            {/* 预览区域 */}
+            {selectedFiles.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg mb-4 text-yellow-500">
+                  已选择 {selectedFiles.length} 张图片
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-square rounded-lg overflow-hidden bg-gray-700">
+                        <Image
+                          src={file.preview}
+                          alt={file.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="absolute top-2 right-2 p-1 bg-red-500 rounded-full
+                                 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
+                
+                {/* 上传按钮 */}
+                <div className="mt-6 flex justify-center">
+                  <button
+                    onClick={() => handleUpload(selectedFiles)}
+                    disabled={isUploading}
+                    className={`px-8 py-3 rounded-lg font-medium transition-colors
+                      ${isUploading
+                        ? 'bg-yellow-600 cursor-not-allowed'
+                        : 'bg-yellow-500 hover:bg-yellow-400 active:bg-yellow-600'
+                      }`}
+                  >
+                    {isUploading ? '上传中...' : '确认上传'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
-    </>
+    </div>
   )
-}
+} 
