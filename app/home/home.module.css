@@ -1,19 +1,22 @@
 /* 主题变量 */
-:root {
-  --background-color: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-  --day-component-bg: rgba(255, 255, 255, 0.5);
-  --night-component-bg: rgba(0, 0, 0, 0.5);
-  --day-text: #000;
-  --night-text: #fff;
-  --day-highlight: #3B82F6;
-  --night-highlight: #eab308;
-}
-
-/* 容器样式 */
 .container {
   min-height: 100vh;
-  background: var(--background-color);
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
   padding: 0;
+}
+
+/* 日间主题 */
+.container[data-theme='day'] {
+  --component-bg: rgba(255, 255, 255, 0.5);
+  --text-color: #000;
+  --highlight-color: #3B82F6;
+}
+
+/* 夜间主题 */
+.container[data-theme='night'] {
+  --component-bg: rgba(0, 0, 0, 0.5);
+  --text-color: #fff;
+  --highlight-color: #eab308;
 }
 
 /* 顶栏样式 */
@@ -24,7 +27,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--day-component-bg);
+  background: var(--component-bg);
 }
 
 .headerLeft {
@@ -41,7 +44,7 @@
 .title {
   font-size: 1.25rem;
   font-weight: bold;
-  color: var(--day-text);
+  color: var(--text-color);
 }
 
 .buttonGroup {
@@ -57,12 +60,12 @@
 }
 
 .uploadNavButton {
-  color: var(--day-highlight);
+  color: var(--highlight-color);
 }
 
 .manageButton,
 .logoutButton {
-  color: var(--day-text);
+  color: var(--text-color);
 }
 
 .logoutButton:hover {
@@ -78,7 +81,7 @@
 
 /* 上传区域 */
 .uploadSection {
-  background: var(--day-component-bg);
+  background: var(--component-bg);
   border-radius: 1rem;
   padding: 2rem;
 }
@@ -94,29 +97,29 @@
 }
 
 .dropzone:hover {
-  border-color: var(--day-highlight);
+  border-color: var(--highlight-color);
 }
 
 .dropzoneActive {
-  border-color: var(--day-highlight);
+  border-color: var(--highlight-color);
   background-color: rgba(59, 130, 246, 0.1);
 }
 
 .dropzoneText {
-  color: var(--day-text);
+  color: var(--text-color);
   font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
 .dropzoneSubtext {
-  color: var(--day-text);
+  color: var(--text-color);
   opacity: 0.7;
   font-size: 0.875rem;
 }
 
 /* 预览区域 */
 .previewSection {
-  background: var(--day-component-bg);
+  background: var(--component-bg);
   border-radius: 1rem;
   padding: 2rem;
   margin-top: 2rem;
@@ -125,7 +128,7 @@
 .previewTitle {
   font-size: 1.125rem;
   font-weight: bold;
-  color: var(--day-text);
+  color: var(--text-color);
   margin-bottom: 1.5rem;
 }
 
@@ -168,42 +171,15 @@
 
 .urlTitle {
   font-weight: bold;
-  color: var(--day-text);
+  color: var(--text-color);
   margin-bottom: 0.25rem;
 }
 
 .urlText {
-  color: var(--day-text);
+  color: var(--text-color);
   opacity: 0.8;
   background: rgba(0, 0, 0, 0.05);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-family: monospace;
-}
-
-/* 夜间模式 */
-.container[data-theme="night"] .header,
-.container[data-theme="night"] .uploadSection,
-.container[data-theme="night"] .previewSection {
-  background: var(--night-component-bg);
-}
-
-.container[data-theme="night"] .title,
-.container[data-theme="night"] .manageButton,
-.container[data-theme="night"] .logoutButton,
-.container[data-theme="night"] .dropzoneText,
-.container[data-theme="night"] .dropzoneSubtext,
-.container[data-theme="night"] .previewTitle,
-.container[data-theme="night"] .urlTitle,
-.container[data-theme="night"] .urlText {
-  color: var(--night-text);
-}
-
-.container[data-theme="night"] .uploadNavButton {
-  color: var(--night-highlight);
-}
-
-.container[data-theme="night"] .dropzone:hover,
-.container[data-theme="night"] .dropzoneActive {
-  border-color: var(--night-highlight);
 }
