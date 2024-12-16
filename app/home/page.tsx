@@ -21,11 +21,16 @@ interface UploadResponse {
   success: boolean
   files?: Array<{
     originalName: string
+    fileName: string
     url: string
     markdown: string
     bbcode: string
+    size: number
+    type: string
+    uploadTime: string
   }>
   message?: string
+  error?: string
 }
 
 export default function HomePage() {
@@ -68,8 +73,12 @@ export default function HomePage() {
       .filter(file => file.type.startsWith('image/'))
       .slice(0, 9 - files.length)
 
-    if (imageFiles.length === 0) return
+    if (imageFiles.length === 0) {
+      alert('请选择图片文件')
+      return
+    }
 
+    console.log('Processing files:', imageFiles.length)
     const processedFiles = imageFiles.map(file => ({
       ...file,
       preview: URL.createObjectURL(file)
@@ -90,24 +99,28 @@ export default function HomePage() {
     filesToUpload.forEach(file => formData.append('files', file))
 
     try {
+      console.log('Starting upload...')
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
         credentials: 'same-origin'
       })
 
+      const result = await response.json() as UploadResponse
+      console.log('Upload response:', result)
+
       if (!response.ok) {
-        throw new Error('上传失败')
+        throw new Error(result.message || '上传失败')
       }
 
-      const result = await response.json() as UploadResponse
-
       if (result.success && result.files) {
+        console.log('Upload successful, updating files...')
         // 更新文件的 URL 信息
         setFiles(prev => prev.map(file => {
           const uploadedFile = result.files?.find(
             (f) => f.originalName === file.name
           )
+          console.log('Matching file:', file.name, uploadedFile)
           if (uploadedFile) {
             return {
               ...file,
@@ -122,6 +135,7 @@ export default function HomePage() {
         throw new Error(result.message || '上传失败')
       }
     } catch (error) {
+      console.error('Upload error:', error)
       alert(error instanceof Error ? error.message : '上传失败，请重试')
     } finally {
       setIsUploading(false)
@@ -223,6 +237,7 @@ export default function HomePage() {
                       alt={file.name}
                       fill
                       className={styles.previewImage}
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                     />
                   </div>
                   {file.url && (
