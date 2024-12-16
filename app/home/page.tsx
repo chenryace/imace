@@ -103,6 +103,10 @@ export default function HomePage() {
         throw new Error(data.error || data.message || '上传失败')
       }
 
+      if (!data.files || data.files.length === 0) {
+        throw new Error('服务器返回的文件信息无效')
+      }
+
       console.log('Upload success:', data)
       
       // 更新预览文件的URL信息
