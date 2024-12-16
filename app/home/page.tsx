@@ -78,7 +78,19 @@ export default function HomePage() {
       const responseText = await res.text()
       console.log('Response text:', responseText)
 
-      let data
+      // 定义响应数据的接口
+      interface UploadResponse {
+        success: boolean;
+        files?: Array<{
+          url: string;
+          markdown: string;
+          originalName: string;
+        }>;
+        error?: string;
+        message?: string;
+      }
+
+      let data: UploadResponse
       try {
         data = JSON.parse(responseText)
       } catch (e) {
