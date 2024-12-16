@@ -8,10 +8,24 @@ import styles from './home.module.css'
 // 网站标题
 const SITE_TITLE = "图床服务"
 
+// 定义上传文件类型
 interface UploadFile extends File {
   preview: string
   url?: string
   markdown?: string
+  bbcode?: string
+}
+
+// 定义上传响应类型
+interface UploadResponse {
+  success: boolean
+  files?: Array<{
+    originalName: string
+    url: string
+    markdown: string
+    bbcode: string
+  }>
+  message?: string
 }
 
 export default function HomePage() {
@@ -23,27 +37,27 @@ export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // 处理拖拽事件
-  const handleDrag = (e: React.DragEvent) => {
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(e.type === "dragenter" || e.type === "dragover")
   }
 
   // 处理文件拖放
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
 
     const droppedFiles = Array.from(e.dataTransfer.files)
-    await processFiles(droppedFiles)
+    await processFiles(droppedFiles as File[])
   }
 
   // 处理文件选择
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files)
-      await processFiles(selectedFiles)
+      await processFiles(selectedFiles as File[])
     }
   }
 
@@ -59,7 +73,7 @@ export default function HomePage() {
     const processedFiles = imageFiles.map(file => ({
       ...file,
       preview: URL.createObjectURL(file)
-    }))
+    })) as UploadFile[]
 
     setFiles(prev => [...prev, ...processedFiles])
     
@@ -86,17 +100,20 @@ export default function HomePage() {
         throw new Error('上传失败')
       }
 
-      const result = await response.json()
+      const result = await response.json() as UploadResponse
 
       if (result.success && result.files) {
         // 更新文件的 URL 信息
         setFiles(prev => prev.map(file => {
-          const uploadedFile = result.files.find(f => f.originalName === file.name)
+          const uploadedFile = result.files?.find(
+            (f) => f.originalName === file.name
+          )
           if (uploadedFile) {
             return {
               ...file,
               url: uploadedFile.url,
-              markdown: uploadedFile.markdown
+              markdown: uploadedFile.markdown,
+              bbcode: uploadedFile.bbcode
             }
           }
           return file
@@ -218,6 +235,10 @@ export default function HomePage() {
                         <p className={styles.urlTitle}>Markdown：</p>
                         <p className={styles.urlText}>{file.markdown}</p>
                       </div>
+                      <div>
+                        <p className={styles.urlTitle}>BBCode：</p>
+                        <p className={styles.urlText}>{file.bbcode}</p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -247,4 +268,4 @@ export default function HomePage() {
       </main>
     </div>
   )
-}
+} 
