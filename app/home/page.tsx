@@ -71,50 +71,34 @@ export default function HomePage() {
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
-        credentials: 'same-origin'  // 添加凭据
+        credentials: 'same-origin'
       })
 
-      // 先获取响应文本
-      const responseText = await res.text()
-      console.log('Response text:', responseText)
-
-      // 定义响应数据的接口
-      interface UploadResponse {
-        success: boolean;
-        files?: Array<{
-          url: string;
-          markdown: string;
-          originalName: string;
-        }>;
-        error?: string;
-        message?: string;
-      }
-
-      let data: UploadResponse
-      try {
-        data = JSON.parse(responseText)
-      } catch (e) {
-        console.error('Failed to parse response:', e)
-        throw new Error('服务器响应格式错误')
-      }
+      const data = await res.json()
 
       if (!res.ok) {
         console.error('Upload failed:', data)
-        throw new Error(data.error || data.message || '上传失败')
+        throw new Error(data.message || '上传失败')
       }
 
-      if (!data.files || data.files.length === 0) {
+      if (!Array.isArray(data.files)) {
         throw new Error('服务器返回的文件信息无效')
       }
 
       console.log('Upload success:', data)
       
       // 更新预览文件的URL信息
-      const updatedFiles = files.map((file, index) => ({
-        ...file,
-        url: data.files[index].url,
-        markdown: data.files[index].markdown
-      }))
+      const updatedFiles = files.map((file, index) => {
+        const uploadedFile = data.files[index]
+        if (!uploadedFile) {
+          throw new Error(`文件 ${file.name} 上传失败`)
+        }
+        return {
+          ...file,
+          url: uploadedFile.url,
+          markdown: uploadedFile.markdown
+        }
+      })
       
       setSelectedFiles(updatedFiles)
     } catch (error) {
