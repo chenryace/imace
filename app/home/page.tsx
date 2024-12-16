@@ -1,35 +1,25 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
-interface UploadedFile {
-  originalName: string
-  fileName: string
-  url: string
-  markdown: string
-  bbcode: string
-  html: string
-  size: number
-  type: string
-  uploadTime: string
+// 可自定义的标题
+const SITE_TITLE = '图床服务'
+
+interface PreviewFile extends File {
+  preview: string;
+  url?: string;
+  markdown?: string;
 }
 
 export default function HomePage() {
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
-  const [images, setImages] = useState<UploadedFile[]>([])
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const [selectedFiles, setSelectedFiles] = useState<PreviewFile[]>([])
+  const [isDarkMode, setIsDarkMode] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
-
-  // 加载已上传的图片
-  useEffect(() => {
-    fetch('/api/images')
-      .then(res => res.json())
-      .then(data => setImages(data))
-      .catch(err => console.error('Failed to load images:', err))
-  }, [])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -47,19 +37,36 @@ export default function HomePage() {
     setDragActive(false)
 
     const files = Array.from(e.dataTransfer.files)
-    if (files.length > 0) {
-      await handleUpload(files)
+    if (files.length > 9) {
+      alert('一次最多上传9张图片')
+      return
     }
+    await handleFiles(files)
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    if (files.length > 0) {
-      await handleUpload(files)
+    if (files.length > 9) {
+      alert('一次最多上传9张图片')
+      return
     }
+    await handleFiles(files)
   }
 
-  const handleUpload = async (files: File[]) => {
+  const handleFiles = async (files: File[]) => {
+    const imageFiles = files.filter(file => file.type.startsWith('image/'))
+    const previewFiles = imageFiles.map(file => Object.assign(file, {
+      preview: URL.createObjectURL(file)
+    }))
+    setSelectedFiles(previewFiles)
+    
+    // 自动上传
+    await handleUpload(previewFiles)
+  }
+
+  const handleUpload = async (files: PreviewFile[]) => {
+    if (files.length === 0) return
+
     setIsUploading(true)
     
     try {
@@ -78,10 +85,15 @@ export default function HomePage() {
       }
 
       const data = await res.json()
-      console.log('Upload success:', data)
       
-      // 添加新上传的图片到列表
-      setImages(prev => [...data.files, ...prev])
+      // 更新预览文件的URL信息
+      const updatedFiles = files.map((file, index) => ({
+        ...file,
+        url: data.files[index].url,
+        markdown: data.files[index].markdown
+      }))
+      
+      setSelectedFiles(updatedFiles)
     } catch (error) {
       console.error('Upload error:', error)
       alert('上传失败，请重试')
@@ -90,132 +102,207 @@ export default function HomePage() {
     }
   }
 
-  const copyToClipboard = (text: string, index: number) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        setCopiedIndex(index)
-        setTimeout(() => setCopiedIndex(null), 2000)
-      })
-      .catch(err => console.error('Failed to copy:', err))
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`
-  }
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">图床</h1>
-          <button
-            onClick={() => {
-              fetch('/api/logout', { method: 'POST' })
-                .then(() => window.location.href = '/login')
-            }}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded"
-          >
-            退出登录
-          </button>
+    <>
+      <style jsx>{`
+        .container {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+          padding: 1rem;
+        }
+        .header {
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'};
+          padding: 1rem;
+          margin-bottom: 2rem;
+          border-radius: 0.5rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+        .header-title {
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
+        }
+        .header-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+        .header-button {
+          padding: 0.5rem 1rem;
+          border-radius: 0.5rem;
+          border: none;
+          font-weight: bold;
+          cursor: pointer;
+          background: transparent;
+          color: ${isDarkMode ? '#fff' : '#000'};
+        }
+        .active-button {
+          color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
+        }
+        .theme-switch {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 9999px;
+          border: none;
+          cursor: pointer;
+          background: ${isDarkMode ? '#374151' : '#E5E7EB'};
+          color: inherit;
+          font-size: 1.25rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-left: 1rem;
+        }
+        .main {
+          max-width: 48rem;
+          margin: 0 auto;
+        }
+        .upload-area {
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'};
+          border-radius: 1rem;
+          padding: 2rem;
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+        .drop-zone {
+          border: 2px dashed ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+          border-radius: 0.5rem;
+          padding: 2rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .drop-zone.active {
+          border-color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
+          background: ${isDarkMode ? 'rgba(255, 215, 0, 0.1)' : 'rgba(59, 130, 246, 0.1)'};
+        }
+        .preview-area {
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)'};
+          border-radius: 1rem;
+          padding: 2rem;
+          min-height: 24rem;
+        }
+        .preview-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+        }
+        .preview-item {
+          aspect-ratio: 1;
+          position: relative;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)'};
+        }
+        .preview-info {
+          margin-top: 0.5rem;
+          font-size: 0.875rem;
+          color: ${isDarkMode ? '#fff' : '#000'};
+        }
+        .preview-url {
+          word-break: break-all;
+          margin-bottom: 0.25rem;
+        }
+        .text {
+          color: ${isDarkMode ? '#fff' : '#000'};
+        }
+      `}</style>
+
+      <div className="container">
+        <header className="header">
+          <div className="header-left">
+            <Image
+              src="/favicon.ico"
+              alt="Logo"
+              width={32}
+              height={32}
+            />
+            <h1 className="header-title">{SITE_TITLE}</h1>
+          </div>
+          
+          <div className="header-buttons">
+            <button className="header-button active-button">
+              上传图片
+            </button>
+            <button 
+              className="header-button"
+              onClick={() => router.push('/manage')}
+            >
+              图片管理
+            </button>
+            <button
+              className="header-button"
+              onClick={() => {
+                fetch('/api/logout', { method: 'POST' })
+                  .then(() => window.location.href = '/login')
+              }}
+            >
+              退出登录
+            </button>
+            <button 
+              className="theme-switch"
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              aria-label="切换主题"
+            >
+              {isDarkMode ? '🌙' : '☀️'}
+            </button>
+          </div>
         </header>
 
-        <main className="space-y-8">
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl mb-4">上传图片</h2>
+        <main className="main">
+          <div className="upload-area">
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive
-                  ? 'border-blue-500 bg-blue-500/10'
-                  : 'border-gray-600 hover:border-gray-500'
-              }`}
+              className={`drop-zone ${dragActive ? 'active' : ''}`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              style={{ cursor: 'pointer' }}
             >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                multiple
-                accept="image/*"
-                className="hidden"
-              />
-              <p className="text-gray-400">
+              <p className="text">
                 {isUploading ? '上传中...' : '点击或拖拽图片到这里上传'}
               </p>
+              <p className="text" style={{ fontSize: '0.875rem', opacity: 0.7 }}>
+                支持 JPG、PNG、GIF 等图片格式，单次最多9张
+              </p>
             </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              multiple
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
           </div>
 
-          {images.length > 0 && (
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl mb-4">已上传的图片</h2>
-              <div className="space-y-4">
-                {images.map((image, index) => (
-                  <div key={image.fileName} className="bg-gray-700 p-4 rounded-lg">
-                    <div className="flex items-start gap-4">
-                      <div className="w-24 h-24 flex-shrink-0">
-                        <img
-                          src={image.url}
-                          alt={image.originalName}
-                          className="w-full h-full object-cover rounded"
-                        />
-                      </div>
-                      <div className="flex-grow space-y-2">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium">{image.originalName}</h3>
-                          <span className="text-sm text-gray-400">
-                            {formatFileSize(image.size)}
-                          </span>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={image.url}
-                              readOnly
-                              className="flex-grow bg-gray-600 rounded px-2 py-1 text-sm"
-                            />
-                            <button
-                              onClick={() => copyToClipboard(image.url, index)}
-                              className="px-2 py-1 bg-blue-600 rounded text-sm hover:bg-blue-700"
-                            >
-                              {copiedIndex === index ? '已复制' : '复制链接'}
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={image.markdown}
-                              readOnly
-                              className="flex-grow bg-gray-600 rounded px-2 py-1 text-sm"
-                            />
-                            <button
-                              onClick={() => copyToClipboard(image.markdown, index)}
-                              className="px-2 py-1 bg-blue-600 rounded text-sm hover:bg-blue-700"
-                            >
-                              {copiedIndex === index ? '已复制' : '复制 Markdown'}
-                            </button>
-                          </div>
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          上传时间：{new Date(image.uploadTime).toLocaleString()}
-                        </div>
-                      </div>
+          <div className="preview-area">
+            <div className="preview-grid">
+              {selectedFiles.map((file, index) => (
+                <div key={index} className="preview-item">
+                  <Image
+                    src={file.preview}
+                    alt={file.name}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
+                  {file.url && (
+                    <div className="preview-info">
+                      <div className="preview-url">直链：{file.url}</div>
+                      <div className="preview-url">Markdown：{file.markdown}</div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </main>
       </div>
-    </div>
+    </>
   )
 }
