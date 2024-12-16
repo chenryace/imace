@@ -83,7 +83,7 @@ export default function LoginPage() {
         .card-backdrop {
           position: absolute;
           inset: 0;
-          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)'};
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.9)'};
           backdrop-filter: blur(8px);
         }
         .card {
@@ -123,37 +123,41 @@ export default function LoginPage() {
         }
         .input {
           width: 100%;
-          max-width: 14rem;
+          max-width: 16rem;
           height: 2.75rem;
           padding: 0 1rem;
           background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)'};
-          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'};
+          border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'};
           border-radius: 0.5rem;
           color: ${isDarkMode ? '#fff' : '#000'};
           margin: 0 auto 1rem;
         }
         .input::placeholder {
-          color: ${isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)'};
+          color: ${isDarkMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)'};
         }
         .input:focus {
           outline: none;
-          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'};
+          border-color: ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+        }
+        .form-group {
+          width: 100%;
+          max-width: 16rem;
+          margin: 0 auto;
         }
         .error {
-          background: rgba(239, 68, 68);
-          border: 1px solid rgba(239, 68, 68, 0.9);
-          border-radius: 0.3rem;
-          padding: 0.3rem;
-          margin: 0.3rem;
-          max-width: 10rem;
+          background: rgba(239, 68, 68, 0.9);
+          border: 1px solid rgba(239, 68, 68, 0.8);
+          border-radius: 0.5rem;
+          padding: 0.75rem;
+          margin-bottom: 1rem;
+          width: 100%;
         }
         .error-text {
           color: rgb(255, 255, 255);
-          font-size: 1rem;
+          font-size: 0.875rem;
         }
         .button {
           width: 100%;
-          max-width: 16rem;
           height: 2.75rem;
           border-radius: 0.5rem;
           font-weight: 500;
@@ -162,7 +166,6 @@ export default function LoginPage() {
           border: none;
           cursor: pointer;
           transition: opacity 0.2s;
-          margin: 0 auto;
         }
         .button:hover {
           opacity: 0.9;
@@ -205,29 +208,31 @@ export default function LoginPage() {
               </button>
 
               <form onSubmit={handleLogin}>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="请输入访问密码"
-                  required
-                  className="input"
-                  disabled={isLoading}
-                />
+                <div className="form-group">
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="请输入访问密码"
+                    required
+                    className="input"
+                    disabled={isLoading}
+                  />
 
-                {error && (
-                  <div className="error">
-                    <p className="error-text">{error}</p>
-                  </div>
-                )}
+                  {error && (
+                    <div className="error">
+                      <p className="error-text">{error}</p>
+                    </div>
+                  )}
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="button"
-                >
-                  {isLoading ? '登录中...' : '登录'}
-                </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="button"
+                  >
+                    {isLoading ? '登录中...' : '登录'}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
