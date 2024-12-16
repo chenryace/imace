@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
@@ -17,9 +17,21 @@ export default function HomePage() {
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<PreviewFile[]>([])
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // 从 localStorage 读取主题设置
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme')
+      return saved === 'dark'
+    }
+    return false
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+
+  // 监听主题变化并保存到 localStorage
+  useEffect(() => {
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light')
+  }, [isDarkMode])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -104,6 +116,14 @@ export default function HomePage() {
 
   return (
     <>
+      <style jsx global>{`
+        body {
+          margin: 0;
+          padding: 0;
+          min-height: 100vh;
+        }
+      `}</style>
+      
       <style jsx>{`
         .container {
           min-height: 100vh;
@@ -118,6 +138,7 @@ export default function HomePage() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          backdrop-filter: blur(8px);
         }
         .header-left {
           display: flex;
@@ -128,6 +149,7 @@ export default function HomePage() {
           font-size: 1.5rem;
           font-weight: bold;
           color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
+          margin: 0;
         }
         .header-buttons {
           display: flex;
@@ -141,6 +163,10 @@ export default function HomePage() {
           cursor: pointer;
           background: transparent;
           color: ${isDarkMode ? '#fff' : '#000'};
+          transition: all 0.2s;
+        }
+        .header-button:hover {
+          background: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
         }
         .active-button {
           color: ${isDarkMode ? '#FFD700' : '#3B82F6'};
@@ -158,6 +184,10 @@ export default function HomePage() {
           align-items: center;
           justify-content: center;
           margin-left: 1rem;
+          transition: all 0.2s;
+        }
+        .theme-switch:hover {
+          background: ${isDarkMode ? '#4B5563' : '#D1D5DB'};
         }
         .main {
           max-width: 48rem;
@@ -169,6 +199,7 @@ export default function HomePage() {
           padding: 2rem;
           text-align: center;
           margin-bottom: 2rem;
+          backdrop-filter: blur(8px);
         }
         .drop-zone {
           border: 2px dashed ${isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
@@ -186,6 +217,7 @@ export default function HomePage() {
           border-radius: 1rem;
           padding: 2rem;
           min-height: 24rem;
+          backdrop-filter: blur(8px);
         }
         .preview-grid {
           display: grid;
@@ -200,8 +232,13 @@ export default function HomePage() {
           background: ${isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)'};
         }
         .preview-info {
-          margin-top: 0.5rem;
-          font-size: 0.875rem;
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 0.5rem;
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)'};
+          font-size: 0.75rem;
           color: ${isDarkMode ? '#fff' : '#000'};
         }
         .preview-url {
@@ -210,6 +247,7 @@ export default function HomePage() {
         }
         .text {
           color: ${isDarkMode ? '#fff' : '#000'};
+          margin: 0;
         }
       `}</style>
 
