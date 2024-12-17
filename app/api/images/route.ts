@@ -13,15 +13,15 @@ const s3 = new S3Client({
   forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true'
 });
 
-// 通用的 URL 生成函数，支持 R2 子域名和 CDN 两种模式
+// 生成公共访问 URL
 function getPublicUrl(fileName: string) {
-  // 使用 R2 子域名模式
-  if (process.env.USE_R2_SUBDOMAIN === 'true' && process.env.R2_CUSTOM_DOMAIN) {
+  // 使用 R2 自定义域名（优先）
+  if (process.env.R2_CUSTOM_DOMAIN) {
     return `${process.env.R2_CUSTOM_DOMAIN.replace(/\/$/, '')}/${fileName}`
   }
-  // 使用 CDN/Workers 模式
-  else if (process.env.PUBLIC_DOMAIN) {
-    return `${process.env.PUBLIC_DOMAIN.replace(/\/$/, '')}/${fileName}`
+  // 使用 S3 域名
+  else if (process.env.S3_DOMAIN) {
+    return `${process.env.S3_DOMAIN.replace(/\/$/, '')}/${fileName}`
   }
   // 降级到标准 S3 URL
   else {
