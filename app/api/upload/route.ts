@@ -2,29 +2,7 @@ import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { cookies } from 'next/headers'
 
-// 检查必要的环境变量
-const requiredEnvVars = [
-  'S3_REGION',
-  'S3_ACCESS_KEY',
-  'S3_SECRET_KEY',
-  'S3_BUCKET_NAME',
-  'PUBLIC_DOMAIN'
-]
-
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    console.error(`Missing required environment variable: ${envVar}`)
-  }
-}
-
-// 添加详细的配置日志
-console.log('S3 Configuration:', {
-  region: process.env.S3_REGION,
-  endpoint: process.env.S3_ENDPOINT,
-  bucket: process.env.S3_BUCKET_NAME,
-  publicDomain: process.env.PUBLIC_DOMAIN
-})
-
+// 创建 S3 客户端
 const s3Client = new S3Client({
   region: process.env.S3_REGION!,
   credentials: {
@@ -32,37 +10,33 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.S3_SECRET_KEY!,
   },
   endpoint: process.env.S3_ENDPOINT,
+  forcePathStyle: true // 强制使用路径样式访问
 })
 
 // 生成公共访问 URL
 function getPublicUrl(fileName: string) {
-  const publicDomain = (process.env.PUBLIC_DOMAIN || '').replace(/\/$/, '')
-  if (!publicDomain) {
-    throw new Error('PUBLIC_DOMAIN environment variable is not set')
+  const domain = process.env.R2_CUSTOM_DOMAIN || process.env.S3_DOMAIN
+  if (!domain) {
+    throw new Error('未配置访问域名 (R2_CUSTOM_DOMAIN 或 S3_DOMAIN)')
   }
-  const cleanFileName = fileName.replace(/^\//, '')
-  return `${publicDomain}/${cleanFileName}`
+  return `${domain.replace(/\/$/, '')}/${fileName}`
 }
 
 export async function POST(req: Request) {
   console.log('Upload request received')
   
+  // 验证登录状态
+  const cookieStore = cookies()
+  const auth = cookieStore.get('auth')
+  if (!auth) {
+    console.log('Authentication failed')
+    return NextResponse.json(
+      { success: false, message: '未登录' },
+      { status: 401 }
+    )
+  }
+
   try {
-    // 验证环境变量
-    if (!process.env.S3_BUCKET_NAME) {
-      throw new Error('S3_BUCKET_NAME environment variable is not set')
-    }
-
-    const cookieStore = cookies()
-    const auth = cookieStore.get('auth')
-    if (!auth) {
-      console.log('Authentication failed')
-      return NextResponse.json(
-        { success: false, message: '未登录' },
-        { status: 401 }
-      )
-    }
-
     const formData = await req.formData()
     const files = formData.getAll('files')
     
@@ -80,7 +54,7 @@ export async function POST(req: Request) {
 
     for (const file of files) {
       if (!(file instanceof File)) {
-        console.log('Invalid file object:', file)
+        console.error('Invalid file object:', file)
         continue
       }
 
@@ -90,33 +64,36 @@ export async function POST(req: Request) {
         size: file.size
       })
 
-      // 生成文件名
-      const timestamp = Date.now()
-      const randomStr = Math.random().toString(36).substring(2, 8)
-      const ext = file.name.split('.').pop()
-      const fileName = `${timestamp}-${randomStr}.${ext}`
-
       try {
+        // 生成文件名
+        const timestamp = Date.now()
+        const randomStr = Math.random().toString(36).substring(2, 8)
+        const ext = file.name.split('.').pop()
+        const fileName = `${timestamp}-${randomStr}.${ext}`
+
+        // 读取文件内容
+        const arrayBuffer = await file.arrayBuffer()
+        console.log('File content read:', {
+          size: arrayBuffer.byteLength,
+          fileName
+        })
+
         // 上传到 S3/R2
-        const buffer = Buffer.from(await file.arrayBuffer())
-        const command = new PutObjectCommand({
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: fileName,
-          Body: buffer,
-          ContentType: file.type,
-          CacheControl: 'public, max-age=31536000',
-          ACL: 'public-read'
-        })
+        const uploadResult = await s3Client.send(
+          new PutObjectCommand({
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: fileName,
+            Body: Buffer.from(arrayBuffer),
+            ContentType: file.type,
+            CacheControl: 'public, max-age=31536000',
+            ACL: 'public-read'
+          })
+        )
 
-        console.log('Uploading to S3:', {
-          bucket: process.env.S3_BUCKET_NAME,
-          key: fileName,
-          contentType: file.type,
-          fileSize: buffer.length
+        console.log('Upload result:', {
+          fileName,
+          status: uploadResult.$metadata.httpStatusCode
         })
-
-        const uploadResult = await s3Client.send(command)
-        console.log('Upload result:', uploadResult)
 
         // 生成访问 URL
         const url = getPublicUrl(fileName)
@@ -136,18 +113,24 @@ export async function POST(req: Request) {
         })
       } catch (uploadError) {
         console.error('Error uploading file:', {
-          fileName,
-          error: uploadError instanceof Error ? {
-            message: uploadError.message,
-            stack: uploadError.stack,
-            name: uploadError.name
-          } : uploadError
+          fileName: file.name,
+          error: uploadError instanceof Error ? uploadError.message : uploadError
         })
-        throw uploadError
+        continue
       }
     }
 
-    console.log('All files processed successfully:', uploadedFiles)
+    if (uploadedFiles.length === 0) {
+      return NextResponse.json(
+        { success: false, message: '所有文件上传失败' },
+        { status: 500 }
+      )
+    }
+
+    console.log('Upload completed successfully:', {
+      totalFiles: uploadedFiles.length
+    })
+
     return NextResponse.json({
       success: true,
       files: uploadedFiles
@@ -156,17 +139,12 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Upload error:', error instanceof Error ? {
       message: error.message,
-      stack: error.stack,
       name: error.name
     } : error)
     
     return NextResponse.json(
-      { 
-        success: false, 
-        message: '上传失败',
-        error: error instanceof Error ? error.message : '未知错误'
-      },
+      { success: false, message: '上传失败' },
       { status: 500 }
     )
   }
-}
+} 
